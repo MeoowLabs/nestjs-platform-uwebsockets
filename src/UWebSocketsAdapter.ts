@@ -1,15 +1,85 @@
-import { HttpServer, NestApplicationOptions, RequestMethod, VersioningOptions } from '@nestjs/common';
-import { RequestHandler, ErrorHandler, VersionValue } from '@nestjs/common/interfaces';
+import { RequestMethod } from '@nestjs/common';
+import {
+  RequestHandler,
+  ErrorHandler,
+  NestApplicationOptions,
+  VersionValue,
+  VersioningOptions,
+} from '@nestjs/common/interfaces';
 import { CorsOptions, CorsOptionsDelegate } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { AbstractHttpAdapter } from '@nestjs/core';
 import { HttpRequest, HttpResponse, TemplatedApp } from 'uWebSockets.js';
 
 export class UWebSocketsAdapter<
+  TInstance extends TemplatedApp = TemplatedApp,
   TRequest extends HttpRequest = HttpRequest,
   TResponse extends HttpResponse = HttpResponse,
-  TInstance extends TemplatedApp = TemplatedApp,
-> implements HttpServer<TRequest, TResponse, TInstance>
+> implements AbstractHttpAdapter<TInstance, TRequest, TResponse>
 {
-  public constructor(private readonly instance: TInstance) {}
+  public constructor(protected httpServer: TInstance) {}
+  protected instance: any;
+
+  public async init(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  public search(port: string | number, callback?: (() => void) | undefined): void;
+  public search(port: string | number, hostname: string, callback?: (() => void) | undefined): void;
+  public search(port: unknown, hostname?: unknown, callback?: unknown): any {
+    throw new Error('Method not implemented.');
+  }
+
+  public getHttpServer(): TInstance {
+    return this.httpServer;
+  }
+
+  public setHttpServer(httpServer: TInstance): void {
+    this.httpServer = httpServer;
+  }
+
+  public setInstance<T = any>(_instance: T): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public getInstance<T = any>(): T {
+    throw new Error('Method not implemented.');
+  }
+
+  public close(): void {
+    this.httpServer.close();
+  }
+
+  public initHttpServer(_options: NestApplicationOptions): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public useStaticAssets(..._args: any[]) {
+    throw new Error('Method not implemented.');
+  }
+
+  public setViewEngine(engine: string) {
+    throw new Error('Method not implemented.');
+  }
+
+  public render(response: any, view: string, options: any) {
+    throw new Error('Method not implemented.');
+  }
+
+  public setErrorHandler(handler: Function, prefix?: string | undefined) {
+    throw new Error('Method not implemented.');
+  }
+
+  public setNotFoundHandler(handler: Function, prefix?: string | undefined) {
+    throw new Error('Method not implemented.');
+  }
+
+  public applyVersionFilter(
+    _handler: Function,
+    _version: VersionValue,
+    _versioningOptions: VersioningOptions,
+  ): (req: TRequest, res: TResponse, next: () => void) => Function {
+    throw new Error('Method not implemented.');
+  }
 
   public use(handler: RequestHandler<TRequest, TResponse> | ErrorHandler<TRequest, TResponse>): any;
   public use(path: string, handler: RequestHandler<TRequest, TResponse> | ErrorHandler<TRequest, TResponse>): any;
@@ -23,120 +93,50 @@ export class UWebSocketsAdapter<
 
   public get(handler: RequestHandler<TRequest, TResponse>): void;
   public get(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public get(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    handler?: RequestHandler<TRequest, TResponse>,
-  ): void {
-    if (typeof pathOrHandler === 'string') {
-      this.instance.get(pathOrHandler, (response: HttpResponse, request: HttpRequest) => {
-        handler!(request as TRequest, response as TResponse);
-      });
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public get(...args: any[]): void {
+    this.injectRouteOptions('get', ...args);
   }
 
   public post(handler: RequestHandler<TRequest, TResponse>): void;
   public post(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public post(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    handler?: RequestHandler<TRequest, TResponse>,
-  ): void {
-    if (typeof pathOrHandler === 'string') {
-      this.instance.post(pathOrHandler, (response: HttpResponse, request: HttpRequest) => {
-        handler!(request as TRequest, response as TResponse);
-      });
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public post(...args: any[]): void {
+    this.injectRouteOptions('post', ...args);
   }
 
   public head(handler: RequestHandler<TRequest, TResponse>): void;
   public head(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public head(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    handler?: RequestHandler<TRequest, TResponse>,
-  ): void {
-    if (typeof pathOrHandler === 'string') {
-      this.instance.head(pathOrHandler, (response: HttpResponse, request: HttpRequest) => {
-        handler!(request as TRequest, response as TResponse);
-      });
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public head(...args: any[]): void {
+    this.injectRouteOptions('patch', ...args);
   }
 
   public delete(handler: RequestHandler<TRequest, TResponse>): void;
   public delete(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public delete(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    handler?: RequestHandler<TRequest, TResponse>,
-  ): void {
-    if (typeof pathOrHandler === 'string') {
-      this.instance.del(pathOrHandler, (response: HttpResponse, request: HttpRequest) => {
-        handler!(request as TRequest, response as TResponse);
-      });
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public delete(...args: any[]): void {
+    this.injectRouteOptions('delete', ...args);
   }
 
   public put(handler: RequestHandler<TRequest, TResponse>): void;
   public put(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public put(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    handler?: RequestHandler<TRequest, TResponse>,
-  ): void {
-    if (typeof pathOrHandler === 'string') {
-      this.instance.put(pathOrHandler, (response: HttpResponse, request: HttpRequest) => {
-        handler!(request as TRequest, response as TResponse);
-      });
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public put(...args: any[]): void {
+    this.injectRouteOptions('put', ...args);
   }
 
   public patch(handler: RequestHandler<TRequest, TResponse>): void;
   public patch(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public patch(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    handler?: RequestHandler<TRequest, TResponse>,
-  ): void {
-    if (typeof pathOrHandler === 'string') {
-      this.instance.patch(pathOrHandler, (response: HttpResponse, request: HttpRequest) => {
-        handler!(request as TRequest, response as TResponse);
-      });
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public patch(...args: any[]): void {
+    this.injectRouteOptions('patch', ...args);
   }
 
   public all(handler: RequestHandler<TRequest, TResponse>): void;
   public all(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public all(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    _handler?: RequestHandler<TRequest, TResponse>,
-  ): void {
-    if (typeof pathOrHandler === 'string') {
-      throw new Error('Method not implemented.');
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public all(...args: any[]): void {
+    this.injectRouteOptions('any', ...args);
   }
 
   public options(handler: RequestHandler<TRequest, TResponse>): void;
   public options(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public options(
-    pathOrHandler: string | RequestHandler<TRequest, TResponse>,
-    handler?: RequestHandler<TRequest, TResponse>,
-  ): any {
-    if (typeof pathOrHandler === 'string') {
-      this.instance.options(pathOrHandler, (response: HttpResponse, request: HttpRequest) => {
-        handler!(request as TRequest, response as TResponse);
-      });
-    } else {
-      throw new Error('Method not implemented.');
-    }
+  public options(...args: any[]): any {
+    this.injectRouteOptions('options', ...args);
   }
 
   public listen(port: string | number, callback?: (() => void) | undefined): void;
@@ -189,41 +189,17 @@ export class UWebSocketsAdapter<
     throw new Error('Method not implemented.');
   }
 
-  public render(response: any, view: string, options: any) {
-    throw new Error('Method not implemented.');
-  }
-
   public redirect(response: TResponse, statusCode: number, url: string): void {
     this.status(response, statusCode);
     response.writeHeader('Location', url);
   }
 
-  public isHeadersSent(_response: TResponse): boolean {
+  public isHeadersSent(response: TResponse): boolean {
     return true;
   }
 
   public setHeader(response: TResponse, name: string, value: string): void {
     response.writeHeader(name, value);
-  }
-
-  public setErrorHandler?(handler: Function, prefix?: string | undefined) {
-    throw new Error('Method not implemented.');
-  }
-
-  public setNotFoundHandler?(handler: Function, prefix?: string | undefined) {
-    throw new Error('Method not implemented.');
-  }
-
-  public useStaticAssets?(...args: any[]): this {
-    throw new Error('Method not implemented.');
-  }
-
-  public setBaseViewsDir?(path: string | string[]): this {
-    throw new Error('Method not implemented.');
-  }
-
-  public setViewEngine?(engineOrOptions: any): this {
-    throw new Error('Method not implemented.');
   }
 
   public createMiddlewareFactory(
@@ -232,20 +208,16 @@ export class UWebSocketsAdapter<
     throw new Error('Method not implemented.');
   }
 
-  public getRequestHostname?(request: TRequest): string {
+  public getRequestHostname(request: TRequest): string {
     return request.getHeader('Host');
   }
 
-  public getRequestMethod?(request: TRequest): string {
+  public getRequestMethod(request: TRequest): string {
     return request.getMethod();
   }
 
-  public getRequestUrl?(request: TRequest): string {
+  public getRequestUrl(request: TRequest): string {
     return request.getUrl();
-  }
-
-  public getInstance(): TInstance {
-    return this.instance;
   }
 
   public registerParserMiddleware(..._args: any[]) {
@@ -256,31 +228,14 @@ export class UWebSocketsAdapter<
     throw new Error('Method not implemented.');
   }
 
-  public getHttpServer() {
-    throw new Error('Method not implemented.');
-  }
-
-  public initHttpServer(options: NestApplicationOptions): void {
-    throw new Error('Method not implemented.');
-  }
-
-  public close() {
-    throw new Error('Method not implemented.');
-  }
-
   public getType(): string {
     return 'uwebsockets';
   }
 
-  public init?(): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  public applyVersionFilter(
-    handler: Function,
-    version: VersionValue,
-    versioningOptions: VersioningOptions,
-  ): (req: TRequest, res: TResponse, next: () => void) => Function {
-    throw new Error('Method not implemented.');
+  private injectRouteOptions(
+    routerMethodKey: 'get' | 'post' | 'put' | 'delete' | 'options' | 'patch' | 'head' | 'any',
+    ...args: any[]
+  ): void {
+    this.instance[routerMethodKey](...args);
   }
 }
