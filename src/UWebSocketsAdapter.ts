@@ -1,11 +1,5 @@
 import { RequestMethod } from '@nestjs/common';
-import {
-  RequestHandler,
-  ErrorHandler,
-  NestApplicationOptions,
-  VersionValue,
-  VersioningOptions,
-} from '@nestjs/common/interfaces';
+import { RequestHandler, NestApplicationOptions, VersionValue, VersioningOptions } from '@nestjs/common/interfaces';
 import { CorsOptions, CorsOptionsDelegate } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { AbstractHttpAdapter } from '@nestjs/core';
 import { HttpRequest, HttpResponse, TemplatedApp } from 'uWebSockets.js';
@@ -14,43 +8,20 @@ export class UWebSocketsAdapter<
   TInstance extends TemplatedApp = TemplatedApp,
   TRequest extends HttpRequest = HttpRequest,
   TResponse extends HttpResponse = HttpResponse,
-> implements AbstractHttpAdapter<TInstance, TRequest, TResponse>
-{
-  public constructor(protected httpServer: TInstance) {}
-  protected instance: any;
-
-  public async init(): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  public search(port: string | number, callback?: (() => void) | undefined): void;
-  public search(port: string | number, hostname: string, callback?: (() => void) | undefined): void;
-  public search(port: unknown, hostname?: unknown, callback?: unknown): any {
-    throw new Error('Method not implemented.');
-  }
-
-  public getHttpServer(): TInstance {
-    return this.httpServer;
-  }
-
-  public setHttpServer(httpServer: TInstance): void {
-    this.httpServer = httpServer;
-  }
-
-  public setInstance<T = any>(_instance: T): void {
-    throw new Error('Method not implemented.');
-  }
-
-  public getInstance<T = any>(): T {
-    throw new Error('Method not implemented.');
+> extends AbstractHttpAdapter<any, TRequest, TResponse> {
+  public constructor(instance: TInstance) {
+    super(instance);
   }
 
   public close(): void {
-    this.httpServer.close();
+    this.instance.close();
   }
 
   public initHttpServer(_options: NestApplicationOptions): void {
-    throw new Error('Method not implemented.');
+    this.httpServer = {
+      address: () => {},
+      once: () => {},
+    };
   }
 
   public useStaticAssets(..._args: any[]) {
@@ -66,11 +37,11 @@ export class UWebSocketsAdapter<
   }
 
   public setErrorHandler(handler: Function, prefix?: string | undefined) {
-    throw new Error('Method not implemented.');
+    //TO-DO
   }
 
   public setNotFoundHandler(handler: Function, prefix?: string | undefined) {
-    throw new Error('Method not implemented.');
+    //TO-DO
   }
 
   public applyVersionFilter(
@@ -81,67 +52,85 @@ export class UWebSocketsAdapter<
     throw new Error('Method not implemented.');
   }
 
-  public use(handler: RequestHandler<TRequest, TResponse> | ErrorHandler<TRequest, TResponse>): any;
-  public use(path: string, handler: RequestHandler<TRequest, TResponse> | ErrorHandler<TRequest, TResponse>): any;
-  public use(_path: unknown, _handler?: unknown): any {
-    throw new Error('Method not implemented.');
-  }
-
   public useBodyParser?(..._args: any[]) {
     throw new Error('Method not implemented.');
   }
 
-  public get(handler: RequestHandler<TRequest, TResponse>): void;
-  public get(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public get(...args: any[]): void {
-    this.injectRouteOptions('get', ...args);
+  public override get(handler: RequestHandler<TRequest, TResponse>): void;
+  public override get(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override get(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.get(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public post(handler: RequestHandler<TRequest, TResponse>): void;
-  public post(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public post(...args: any[]): void {
-    this.injectRouteOptions('post', ...args);
+  public override post(handler: RequestHandler<TRequest, TResponse>): void;
+  public override post(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override post(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.post(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public head(handler: RequestHandler<TRequest, TResponse>): void;
-  public head(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public head(...args: any[]): void {
-    this.injectRouteOptions('patch', ...args);
+  public override head(handler: RequestHandler<TRequest, TResponse>): void;
+  public override head(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override head(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.head(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public delete(handler: RequestHandler<TRequest, TResponse>): void;
-  public delete(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public delete(...args: any[]): void {
-    this.injectRouteOptions('delete', ...args);
+  public override delete(handler: RequestHandler<TRequest, TResponse>): void;
+  public override delete(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override delete(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.delete(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public put(handler: RequestHandler<TRequest, TResponse>): void;
-  public put(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public put(...args: any[]): void {
-    this.injectRouteOptions('put', ...args);
+  public override put(handler: RequestHandler<TRequest, TResponse>): void;
+  public override put(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override put(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.put(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public patch(handler: RequestHandler<TRequest, TResponse>): void;
-  public patch(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public patch(...args: any[]): void {
-    this.injectRouteOptions('patch', ...args);
+  public override patch(handler: RequestHandler<TRequest, TResponse>): void;
+  public override patch(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override patch(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.patch(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public all(handler: RequestHandler<TRequest, TResponse>): void;
-  public all(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public all(...args: any[]): void {
-    this.injectRouteOptions('any', ...args);
+  public override all(handler: RequestHandler<TRequest, TResponse>): void;
+  public override all(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override all(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.any(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public options(handler: RequestHandler<TRequest, TResponse>): void;
-  public options(path: string, handler: RequestHandler<TRequest, TResponse>): void;
-  public options(...args: any[]): any {
-    this.injectRouteOptions('options', ...args);
+  public override options(handler: RequestHandler<TRequest, TResponse>): void;
+  public override options(path: string, handler: RequestHandler<TRequest, TResponse>): void;
+  public override options(
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ): void {
+    this.instance.options(handlerOrPath, this.resolveHandler(handler!));
   }
 
-  public listen(port: string | number, callback?: (() => void) | undefined): void;
-  public listen(port: string | number, hostname: string, callback?: (() => void) | undefined): void;
-  public listen(
+  public override listen(port: string | number, callback?: (() => void) | undefined): void;
+  public override listen(port: string | number, hostname: string, callback?: (() => void) | undefined): void;
+  public override listen(
     port: string | number,
     hostnameOrCallback: string | (() => void) | undefined,
     callback?: (() => void) | undefined,
@@ -152,13 +141,13 @@ export class UWebSocketsAdapter<
 
     if (typeof hostnameOrCallback === 'string') {
       resolvedHost = hostnameOrCallback;
+
+      if (callback !== undefined) {
+        resolvedCallback = callback;
+      }
     } else {
       if (hostnameOrCallback !== undefined) {
         resolvedCallback = hostnameOrCallback;
-      } else {
-        if (callback !== undefined) {
-          resolvedCallback = callback;
-        }
       }
     }
 
@@ -172,6 +161,7 @@ export class UWebSocketsAdapter<
 
     if (body !== undefined && body !== null) {
       if (typeof body === 'object') {
+        this.setHeader(response, 'Content-Type', 'application/json');
         response.end(JSON.stringify(body));
       } else {
         response.end(body);
@@ -194,7 +184,7 @@ export class UWebSocketsAdapter<
     response.writeHeader('Location', url);
   }
 
-  public isHeadersSent(response: TResponse): boolean {
+  public isHeadersSent(_response: TResponse): boolean {
     return true;
   }
 
@@ -221,7 +211,7 @@ export class UWebSocketsAdapter<
   }
 
   public registerParserMiddleware(..._args: any[]) {
-    throw new Error('Method not implemented.');
+    //TO-DO
   }
 
   public enableCors(_options: CorsOptions | CorsOptionsDelegate<TRequest>) {
@@ -232,10 +222,9 @@ export class UWebSocketsAdapter<
     return 'uwebsockets';
   }
 
-  private injectRouteOptions(
-    routerMethodKey: 'get' | 'post' | 'put' | 'delete' | 'options' | 'patch' | 'head' | 'any',
-    ...args: any[]
-  ): void {
-    this.instance[routerMethodKey](...args);
+  private resolveHandler(handler: RequestHandler<TRequest, TResponse>): (res: HttpResponse, req: HttpRequest) => void {
+    return (response: HttpResponse, request: HttpRequest): void => {
+      handler!(request as TRequest, response as TResponse);
+    };
   }
 }
