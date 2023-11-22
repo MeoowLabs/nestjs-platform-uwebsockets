@@ -2,15 +2,61 @@ import { RequestMethod } from '@nestjs/common';
 import { RequestHandler, NestApplicationOptions, VersionValue, VersioningOptions } from '@nestjs/common/interfaces';
 import { CorsOptions, CorsOptionsDelegate } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { AbstractHttpAdapter } from '@nestjs/core';
-import { HttpRequest, HttpResponse, TemplatedApp } from 'uWebSockets.js';
+import { HttpRequest, HttpResponse, RecognizedString, TemplatedApp } from 'uWebSockets.js';
+
+const DEFAULT_PATH: string = '';
 
 export class UWebSocketsAdapter<
   TInstance extends TemplatedApp = TemplatedApp,
   TRequest extends HttpRequest = HttpRequest,
   TResponse extends HttpResponse = HttpResponse,
 > extends AbstractHttpAdapter<any, TRequest, TResponse> {
+  protected declare instance: TInstance;
+
+  readonly #anyRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+  readonly #delRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+  readonly #getRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+  readonly #headRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+  readonly #optionsRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+  readonly #patchRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+  readonly #postRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+  readonly #putRequestHandler: (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void;
+
   public constructor(instance: TInstance) {
     super(instance);
+
+    this.#anyRequestHandler = this.#buildRequestHandler(this.instance.any.bind(this.instance));
+    this.#delRequestHandler = this.#buildRequestHandler(this.instance.del.bind(this.instance));
+    this.#getRequestHandler = this.#buildRequestHandler(this.instance.get.bind(this.instance));
+    this.#headRequestHandler = this.#buildRequestHandler(this.instance.head.bind(this.instance));
+    this.#optionsRequestHandler = this.#buildRequestHandler(this.instance.options.bind(this.instance));
+    this.#patchRequestHandler = this.#buildRequestHandler(this.instance.patch.bind(this.instance));
+    this.#postRequestHandler = this.#buildRequestHandler(this.instance.post.bind(this.instance));
+    this.#putRequestHandler = this.#buildRequestHandler(this.instance.put.bind(this.instance));
   }
 
   public close(): void {
@@ -62,7 +108,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.get(handlerOrPath, this.resolveHandler(handler!));
+    this.#getRequestHandler(handlerOrPath, handler);
   }
 
   public override post(handler: RequestHandler<TRequest, TResponse>): void;
@@ -71,7 +117,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.post(handlerOrPath, this.resolveHandler(handler!));
+    this.#postRequestHandler(handlerOrPath, handler);
   }
 
   public override head(handler: RequestHandler<TRequest, TResponse>): void;
@@ -80,7 +126,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.head(handlerOrPath, this.resolveHandler(handler!));
+    this.#headRequestHandler(handlerOrPath, handler);
   }
 
   public override delete(handler: RequestHandler<TRequest, TResponse>): void;
@@ -89,7 +135,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.delete(handlerOrPath, this.resolveHandler(handler!));
+    this.#delRequestHandler(handlerOrPath, handler);
   }
 
   public override put(handler: RequestHandler<TRequest, TResponse>): void;
@@ -98,7 +144,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.put(handlerOrPath, this.resolveHandler(handler!));
+    this.#putRequestHandler(handlerOrPath, handler);
   }
 
   public override patch(handler: RequestHandler<TRequest, TResponse>): void;
@@ -107,7 +153,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.patch(handlerOrPath, this.resolveHandler(handler!));
+    this.#patchRequestHandler(handlerOrPath, handler);
   }
 
   public override all(handler: RequestHandler<TRequest, TResponse>): void;
@@ -116,7 +162,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.any(handlerOrPath, this.resolveHandler(handler!));
+    this.#anyRequestHandler(handlerOrPath, handler);
   }
 
   public override options(handler: RequestHandler<TRequest, TResponse>): void;
@@ -125,7 +171,7 @@ export class UWebSocketsAdapter<
     handlerOrPath: RequestHandler<TRequest, TResponse> | string,
     handler?: RequestHandler<TRequest, TResponse>,
   ): void {
-    this.instance.options(handlerOrPath, this.resolveHandler(handler!));
+    this.#optionsRequestHandler(handlerOrPath, handler);
   }
 
   public override listen(port: string | number, callback?: (() => void) | undefined): void;
@@ -224,7 +270,37 @@ export class UWebSocketsAdapter<
 
   private resolveHandler(handler: RequestHandler<TRequest, TResponse>): (res: HttpResponse, req: HttpRequest) => void {
     return (response: HttpResponse, request: HttpRequest): void => {
-      handler!(request as TRequest, response as TResponse);
+      handler(request as TRequest, response as TResponse);
+    };
+  }
+
+  #buildRequestHandler(
+    uwsHandler: (
+      pattern: RecognizedString,
+      handler: (res: HttpResponse, req: HttpRequest) => void | Promise<void>,
+    ) => void,
+  ): (
+    handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+    handler?: RequestHandler<TRequest, TResponse>,
+  ) => void {
+    return (
+      handlerOrPath: RequestHandler<TRequest, TResponse> | string,
+      handler?: RequestHandler<TRequest, TResponse>,
+    ) => {
+      let path: string;
+      let requestHandler: RequestHandler<TRequest, TResponse>;
+
+      if (typeof handlerOrPath === 'string') {
+        path = handlerOrPath;
+        requestHandler = handler!;
+      } else {
+        path = DEFAULT_PATH;
+        requestHandler = handlerOrPath;
+      }
+
+      uwsHandler(path, (response: HttpResponse, request: HttpRequest): void =>
+        requestHandler(request as TRequest, response as TResponse),
+      );
     };
   }
 }

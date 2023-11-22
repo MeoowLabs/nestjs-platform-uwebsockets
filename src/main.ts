@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { App } from 'uWebSockets.js';
 
@@ -5,7 +6,11 @@ import { AppModule } from './AppModule';
 import { UWebSocketsAdapter } from './UWebSocketsAdapter';
 
 async function bootstrap(): Promise<void> {
-  const app: any = await NestFactory.create<any>(AppModule, new UWebSocketsAdapter(App({})), {});
+  const app: INestApplication<unknown> = await NestFactory.create<INestApplication<unknown>>(
+    AppModule,
+    new UWebSocketsAdapter(App({})),
+    {},
+  );
 
   app.enableShutdownHooks();
 
