@@ -56,9 +56,7 @@ export class UWebSocketsAdapter<
     throw new Error('Method not implemented.');
   }
 
-  public useBodyParser(..._args: any[]) {
-    
-  }
+  public useBodyParser(..._args: any[]) {}
 
   public override get(handler: RequestHandler<TRequest, TResponse>): void;
   public override get(path: string, handler: RequestHandler<TRequest, TResponse>): void;
