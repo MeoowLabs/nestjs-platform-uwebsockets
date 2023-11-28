@@ -1,9 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  @Get()
-  public status(): string {
+  @Post(':id')
+  public status(@Body() body: any, @Param('id') id: string): string {
+    console.log(request);
+    console.log(id);
     return 'ok';
   }
 }

@@ -49,15 +49,15 @@ export class UWebSocketsAdapter<
   }
 
   public applyVersionFilter(
-    _handler: Function,
-    _version: VersionValue,
-    _versioningOptions: VersioningOptions,
+    handler: Function,
+    version: VersionValue,
+    versioningOptions: VersioningOptions,
   ): (req: TRequest, res: TResponse, next: () => void) => Function {
     throw new Error('Method not implemented.');
   }
 
-  public useBodyParser?(..._args: any[]) {
-    throw new Error('Method not implemented.');
+  public useBodyParser(..._args: any[]) {
+    
   }
 
   public override get(handler: RequestHandler<TRequest, TResponse>): void;
@@ -179,8 +179,8 @@ export class UWebSocketsAdapter<
     response.writeStatus(`${statusCode}`);
   }
 
-  public end(response: any, message?: string | undefined): void {
-    throw new Error('Method not implemented.');
+  public end(response: TResponse, message?: string | undefined): void {
+    response.end(message);
   }
 
   public redirect(response: TResponse, statusCode: number, url: string): void {
@@ -218,7 +218,7 @@ export class UWebSocketsAdapter<
     //TO-DO
   }
 
-  public enableCors(_options: CorsOptions | CorsOptionsDelegate<TRequest>) {
+  public enableCors(options: CorsOptions | CorsOptionsDelegate<TRequest>) {
     throw new Error('Method not implemented.');
   }
 
