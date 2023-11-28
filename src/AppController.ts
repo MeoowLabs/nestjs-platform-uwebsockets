@@ -4,7 +4,7 @@ import { Body, Controller, Param, Post } from '@nestjs/common';
 export class AppController {
   @Post(':id')
   public status(@Body() body: any, @Param('id') id: string): string {
-    console.log(request);
+    console.log(body);
     console.log(id);
     return 'ok';
   }
