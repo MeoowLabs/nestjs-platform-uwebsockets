@@ -1,7 +1,13 @@
 import { HttpRequest, HttpResponse } from 'uWebSockets.js';
 
 import { Builder } from './Builder';
-import { ExpressLikeBody, ExpressLikeHeaders, ExpressLikeParams, ExpressLikeQuery, ExpressLikeRequest } from '../model/ExpressLikeRequest';
+import {
+  ExpressLikeBody,
+  ExpressLikeHeaders,
+  ExpressLikeParams,
+  ExpressLikeQuery,
+  ExpressLikeRequest,
+} from '../model/ExpressLikeRequest';
 
 export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
   implements Builder<ExpressLikeRequest, [HttpRequest, HttpResponse, string]>
@@ -22,7 +28,6 @@ export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
     this.#expressLikeParamsFromUWebSocketsHttpParamsBuilder = expressLikeParamsFromUWebSocketsHttpParamsBuilder;
     this.#expressLikeQueryFromUWebSocketsHttpQueryBuilder = expressLikeQueryFromUWebSocketsHttpQueryBuilder;
   }
-
 
   public build(request: HttpRequest, response: HttpResponse, path: string): ExpressLikeRequest {
     const body: ExpressLikeBody = this.#expressLikeBodyFromUWebSocketsHttpBodyBuilder.build(response);

@@ -6,7 +6,7 @@ export type ExpressLikeQuery = Record<string, unknown>;
 export interface ExpressLikeHeaders {
   [key: string]: string | string[];
 
-  'set-cookies': string[];
+  'set-cookies'?: string[];
 }
 
 export interface ExpressLikeRequest extends HttpRequest {
