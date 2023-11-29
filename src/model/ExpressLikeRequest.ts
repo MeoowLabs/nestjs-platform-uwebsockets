@@ -6,7 +6,7 @@ import { ExpressLikeParams } from './ExpressLikeParams';
 import { ExpressLikeQuery } from './ExpressLikeQuery';
 
 export interface ExpressLikeRequest extends HttpRequest {
-  body: ExpressLikeBody;
+  body: ExpressLikeBody | undefined;
   params: ExpressLikeParams;
   query: ExpressLikeQuery;
   headers: ExpressLikeHeaders;

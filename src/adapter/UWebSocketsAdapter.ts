@@ -17,7 +17,7 @@ export class UWebSocketsAdapter<
 > extends AbstractHttpAdapter<any, TRequest, TResponse> {
   protected declare instance: TInstance;
   readonly #expressLikeRequestFromUWebSocketsHttpRequestBuilder: Builder<
-    ExpressLikeRequest,
+    Promise<ExpressLikeRequest>,
     [HttpRequest, HttpResponse, string]
   > = ExpressLikeRequestFromUWebSocketsHttpRequestBuilder.new();
 
@@ -251,8 +251,8 @@ export class UWebSocketsAdapter<
       requestHandler = handlerOrPath;
     }
 
-    uwsHandler(path, (response: HttpResponse, request: HttpRequest): void => {
-      const expressLikeRequest: ExpressLikeRequest = this.#expressLikeRequestFromUWebSocketsHttpRequestBuilder.build(
+    uwsHandler(path, async (response: HttpResponse, request: HttpRequest): Promise<void> => {
+      const expressLikeRequest: ExpressLikeRequest = await this.#expressLikeRequestFromUWebSocketsHttpRequestBuilder.build(
         request,
         response,
         path,

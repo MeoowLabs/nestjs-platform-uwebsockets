@@ -12,15 +12,18 @@ import { ExpressLikeQuery } from '../model/ExpressLikeQuery';
 import { ExpressLikeRequest } from '../model/ExpressLikeRequest';
 
 export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
-  implements Builder<ExpressLikeRequest, [HttpRequest, HttpResponse, string]>
+  implements Builder<Promise<ExpressLikeRequest>, [HttpRequest, HttpResponse, string]>
 {
-  readonly #expressLikeBodyFromUWebSocketsHttpBodyBuilder: Builder<ExpressLikeBody, [HttpResponse]>;
+  readonly #expressLikeBodyFromUWebSocketsHttpBodyBuilder: Builder<
+    Promise<ExpressLikeBody | undefined>,
+    [HttpResponse]
+  >;
   readonly #expressLikeHeadersFromUWebSocketsHttpHeadersBuilder: Builder<ExpressLikeHeaders, [HttpRequest]>;
   readonly #expressLikeParamsFromUWebSocketsHttpParamsBuilder: Builder<ExpressLikeParams, [HttpRequest, string]>;
   readonly #expressLikeQueryFromUWebSocketsHttpQueryBuilder: Builder<ExpressLikeQuery, [HttpRequest]>;
 
   private constructor(
-    expressLikeBodyFromUWebSocketsHttpBodyBuilder?: Builder<ExpressLikeBody, [HttpResponse]>,
+    expressLikeBodyFromUWebSocketsHttpBodyBuilder?: Builder<Promise<ExpressLikeBody | undefined>, [HttpResponse]>,
     expressLikeHeadersFromUWebSocketsHttpHeadersBuilder?: Builder<ExpressLikeHeaders, [HttpRequest]>,
     expressLikeParamsFromUWebSocketsHttpParamsBuilder?: Builder<ExpressLikeParams, [HttpRequest, string]>,
     expressLikeQueryFromUWebSocketsHttpQueryBuilder?: Builder<ExpressLikeQuery, [HttpRequest]>,
@@ -36,7 +39,7 @@ export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
   }
 
   public static new(
-    expressLikeBodyFromUWebSocketsHttpBodyBuilder?: Builder<ExpressLikeBody, [HttpResponse]>,
+    expressLikeBodyFromUWebSocketsHttpBodyBuilder?: Builder<Promise<ExpressLikeBody | undefined>, [HttpResponse]>,
     expressLikeHeadersFromUWebSocketsHttpHeadersBuilder?: Builder<ExpressLikeHeaders, [HttpRequest]>,
     expressLikeParamsFromUWebSocketsHttpParamsBuilder?: Builder<ExpressLikeParams, [HttpRequest, string]>,
     expressLikeQueryFromUWebSocketsHttpQueryBuilder?: Builder<ExpressLikeQuery, [HttpRequest]>,
@@ -49,11 +52,11 @@ export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
     );
   }
 
-  public build(request: HttpRequest, response: HttpResponse, path: string): ExpressLikeRequest {
-    const body: ExpressLikeBody = this.#expressLikeBodyFromUWebSocketsHttpBodyBuilder.build(response);
+  public async build(request: HttpRequest, response: HttpResponse, path: string): Promise<ExpressLikeRequest> {
     const headers: ExpressLikeHeaders = this.#expressLikeHeadersFromUWebSocketsHttpHeadersBuilder.build(request);
     const params: ExpressLikeParams = this.#expressLikeParamsFromUWebSocketsHttpParamsBuilder.build(request, path);
     const query: ExpressLikeQuery = this.#expressLikeQueryFromUWebSocketsHttpQueryBuilder.build(request);
+    const body: ExpressLikeBody | undefined = await this.#expressLikeBodyFromUWebSocketsHttpBodyBuilder.build(response);
 
     const expressLikeRequest: ExpressLikeRequest = {
       ...request,

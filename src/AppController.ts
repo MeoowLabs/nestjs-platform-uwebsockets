@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Headers, Param, Query } from '@nestjs/common';
+import { Body, Controller, Headers, Param, Post, Query } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  @Get(':id')
+  @Post(':id')
   public status(@Body() body: any, @Param('id') id: string, @Headers() head: any, @Query() query: any): string {
     console.log(body);
     console.log(id);
