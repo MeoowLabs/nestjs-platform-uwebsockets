@@ -1,7 +1,7 @@
 import { HttpRequest } from 'uWebSockets.js';
 
 import { Builder } from './Builder';
-import { ExpressLikeHeaders } from '../model/ExpressLikeRequest';
+import { ExpressLikeHeaders } from '../model/ExpressLikeHeaders';
 
 export class ExpressLikeHeadersFromUWebSocketsHttpHeadersBuilder implements Builder<ExpressLikeHeaders, [HttpRequest]> {
   public build(request: HttpRequest): ExpressLikeHeaders {

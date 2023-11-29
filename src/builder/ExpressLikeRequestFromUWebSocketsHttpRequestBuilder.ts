@@ -1,13 +1,11 @@
 import { HttpRequest, HttpResponse } from 'uWebSockets.js';
 
 import { Builder } from './Builder';
-import {
-  ExpressLikeBody,
-  ExpressLikeHeaders,
-  ExpressLikeParams,
-  ExpressLikeQuery,
-  ExpressLikeRequest,
-} from '../model/ExpressLikeRequest';
+import { ExpressLikeBody } from '../model/ExpressLikeBody';
+import { ExpressLikeHeaders } from '../model/ExpressLikeHeaders';
+import { ExpressLikeParams } from '../model/ExpressLikeParams';
+import { ExpressLikeQuery } from '../model/ExpressLikeQuery';
+import { ExpressLikeRequest } from '../model/ExpressLikeRequest';
 
 export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
   implements Builder<ExpressLikeRequest, [HttpRequest, HttpResponse, string]>

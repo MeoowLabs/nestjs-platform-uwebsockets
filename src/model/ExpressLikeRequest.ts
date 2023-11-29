@@ -1,13 +1,9 @@
 import { HttpRequest } from 'uWebSockets.js';
 
-export type ExpressLikeBody = Record<string, unknown>;
-export type ExpressLikeParams = Record<string, unknown>;
-export type ExpressLikeQuery = Record<string, unknown>;
-export interface ExpressLikeHeaders {
-  [key: string]: string | string[];
-
-  'set-cookies'?: string[];
-}
+import { ExpressLikeBody } from './ExpressLikeBody';
+import { ExpressLikeHeaders } from './ExpressLikeHeaders';
+import { ExpressLikeParams } from './ExpressLikeParams';
+import { ExpressLikeQuery } from './ExpressLikeQuery';
 
 export interface ExpressLikeRequest extends HttpRequest {
   body: ExpressLikeBody;
