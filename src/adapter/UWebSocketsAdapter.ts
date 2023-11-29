@@ -209,7 +209,7 @@ export class UWebSocketsAdapter<
   }
 
   public getRequestHostname(request: TRequest): string {
-    return request.getHeader('Host');
+    return request.getHeader('host');
   }
 
   public getRequestMethod(request: TRequest): string {
@@ -252,11 +252,8 @@ export class UWebSocketsAdapter<
     }
 
     uwsHandler(path, async (response: HttpResponse, request: HttpRequest): Promise<void> => {
-      const expressLikeRequest: ExpressLikeRequest = await this.#expressLikeRequestFromUWebSocketsHttpRequestBuilder.build(
-        request,
-        response,
-        path,
-      );
+      const expressLikeRequest: ExpressLikeRequest =
+        await this.#expressLikeRequestFromUWebSocketsHttpRequestBuilder.build(request, response, path);
 
       requestHandler(expressLikeRequest as unknown as TRequest, response as TResponse);
     });

@@ -7,6 +7,7 @@ import { ExpressLikeQuery } from './ExpressLikeQuery';
 
 export interface ExpressLikeRequest extends HttpRequest {
   body: ExpressLikeBody | undefined;
+  ip: string;
   params: ExpressLikeParams;
   query: ExpressLikeQuery;
   headers: ExpressLikeHeaders;

@@ -3,6 +3,7 @@ import { HttpRequest, HttpResponse } from 'uWebSockets.js';
 import { Builder } from './Builder';
 import { ExpressLikeBodyFromUWebSocketsHttpBodyBuilder } from './ExpressLikeBodyFromUWebSocketsHttpBodyBuilder';
 import { ExpressLikeHeadersFromUWebSocketsHttpHeadersBuilder } from './ExpressLikeHeadersFromUWebSocketsHttpHeadersBuilder';
+import { ExpressLikeIpFromUWebSocketsHttpIpBuilder } from './ExpressLikeIpFromUWebSocketsHttpIpBuilder';
 import { ExpressLikeParamsFromUWebSocketsHttpParamsBuilder } from './ExpressLikeParamsFromUWebSocketsHttpParamsBuilder';
 import { ExpressLikeQueryFromUWebSocketsHttpQueryBuilder } from './ExpressLikeQueryFromUWebSocketsHttpQueryBuilder';
 import { ExpressLikeBody } from '../model/ExpressLikeBody';
@@ -19,12 +20,14 @@ export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
     [HttpResponse]
   >;
   readonly #expressLikeHeadersFromUWebSocketsHttpHeadersBuilder: Builder<ExpressLikeHeaders, [HttpRequest]>;
+  readonly #expressLikeIpFromUWebSocketsHttpIpBuilder: Builder<string, [HttpResponse]>;
   readonly #expressLikeParamsFromUWebSocketsHttpParamsBuilder: Builder<ExpressLikeParams, [HttpRequest, string]>;
   readonly #expressLikeQueryFromUWebSocketsHttpQueryBuilder: Builder<ExpressLikeQuery, [HttpRequest]>;
 
   private constructor(
     expressLikeBodyFromUWebSocketsHttpBodyBuilder?: Builder<Promise<ExpressLikeBody | undefined>, [HttpResponse]>,
     expressLikeHeadersFromUWebSocketsHttpHeadersBuilder?: Builder<ExpressLikeHeaders, [HttpRequest]>,
+    expressLikeIpFromUWebSocketsHttpIpBuilder?: Builder<string, [HttpResponse]>,
     expressLikeParamsFromUWebSocketsHttpParamsBuilder?: Builder<ExpressLikeParams, [HttpRequest, string]>,
     expressLikeQueryFromUWebSocketsHttpQueryBuilder?: Builder<ExpressLikeQuery, [HttpRequest]>,
   ) {
@@ -32,6 +35,8 @@ export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
       expressLikeBodyFromUWebSocketsHttpBodyBuilder ?? new ExpressLikeBodyFromUWebSocketsHttpBodyBuilder();
     this.#expressLikeHeadersFromUWebSocketsHttpHeadersBuilder =
       expressLikeHeadersFromUWebSocketsHttpHeadersBuilder ?? new ExpressLikeHeadersFromUWebSocketsHttpHeadersBuilder();
+    this.#expressLikeIpFromUWebSocketsHttpIpBuilder =
+      expressLikeIpFromUWebSocketsHttpIpBuilder ?? new ExpressLikeIpFromUWebSocketsHttpIpBuilder();
     this.#expressLikeParamsFromUWebSocketsHttpParamsBuilder =
       expressLikeParamsFromUWebSocketsHttpParamsBuilder ?? new ExpressLikeParamsFromUWebSocketsHttpParamsBuilder();
     this.#expressLikeQueryFromUWebSocketsHttpQueryBuilder =
@@ -41,12 +46,14 @@ export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
   public static new(
     expressLikeBodyFromUWebSocketsHttpBodyBuilder?: Builder<Promise<ExpressLikeBody | undefined>, [HttpResponse]>,
     expressLikeHeadersFromUWebSocketsHttpHeadersBuilder?: Builder<ExpressLikeHeaders, [HttpRequest]>,
+    expressLikeIpFromUWebSocketsHttpIpBuilder?: Builder<string, [HttpResponse]>,
     expressLikeParamsFromUWebSocketsHttpParamsBuilder?: Builder<ExpressLikeParams, [HttpRequest, string]>,
     expressLikeQueryFromUWebSocketsHttpQueryBuilder?: Builder<ExpressLikeQuery, [HttpRequest]>,
   ): ExpressLikeRequestFromUWebSocketsHttpRequestBuilder {
     return new ExpressLikeRequestFromUWebSocketsHttpRequestBuilder(
       expressLikeBodyFromUWebSocketsHttpBodyBuilder,
       expressLikeHeadersFromUWebSocketsHttpHeadersBuilder,
+      expressLikeIpFromUWebSocketsHttpIpBuilder,
       expressLikeParamsFromUWebSocketsHttpParamsBuilder,
       expressLikeQueryFromUWebSocketsHttpQueryBuilder,
     );
@@ -56,12 +63,14 @@ export class ExpressLikeRequestFromUWebSocketsHttpRequestBuilder
     const headers: ExpressLikeHeaders = this.#expressLikeHeadersFromUWebSocketsHttpHeadersBuilder.build(request);
     const params: ExpressLikeParams = this.#expressLikeParamsFromUWebSocketsHttpParamsBuilder.build(request, path);
     const query: ExpressLikeQuery = this.#expressLikeQueryFromUWebSocketsHttpQueryBuilder.build(request);
+    const ip: string = this.#expressLikeIpFromUWebSocketsHttpIpBuilder.build(response);
     const body: ExpressLikeBody | undefined = await this.#expressLikeBodyFromUWebSocketsHttpBodyBuilder.build(response);
 
     const expressLikeRequest: ExpressLikeRequest = {
       ...request,
       body,
       headers,
+      ip,
       params,
       query,
     };
