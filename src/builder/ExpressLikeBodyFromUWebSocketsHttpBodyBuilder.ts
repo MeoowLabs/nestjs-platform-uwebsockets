@@ -5,6 +5,8 @@ import { ExpressLikeBody } from '../model/ExpressLikeBody';
 
 export class ExpressLikeBodyFromUWebSocketsHttpBodyBuilder implements Builder<ExpressLikeBody, [HttpResponse]> {
   public build(response: HttpResponse): ExpressLikeBody {
-    throw new Error('Method not implemented.');
+    const expressLikeBody: ExpressLikeBody = {};
+
+    return expressLikeBody;
   }
 }

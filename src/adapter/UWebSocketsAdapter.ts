@@ -4,6 +4,10 @@ import { CorsOptions, CorsOptionsDelegate } from '@nestjs/common/interfaces/exte
 import { AbstractHttpAdapter } from '@nestjs/core';
 import { HttpRequest, HttpResponse, RecognizedString, TemplatedApp } from 'uWebSockets.js';
 
+import { Builder } from '../builder/Builder';
+import { ExpressLikeRequestFromUWebSocketsHttpRequestBuilder } from '../builder/ExpressLikeRequestFromUWebSocketsHttpRequestBuilder';
+import { ExpressLikeRequest } from '../model/ExpressLikeRequest';
+
 const DEFAULT_PATH: string = '';
 
 export class UWebSocketsAdapter<
@@ -12,6 +16,10 @@ export class UWebSocketsAdapter<
   TResponse extends HttpResponse = HttpResponse,
 > extends AbstractHttpAdapter<any, TRequest, TResponse> {
   protected declare instance: TInstance;
+  readonly #expressLikeRequestFromUWebSocketsHttpRequestBuilder: Builder<
+    ExpressLikeRequest,
+    [HttpRequest, HttpResponse, string]
+  > = ExpressLikeRequestFromUWebSocketsHttpRequestBuilder.new();
 
   public constructor(instance: TInstance) {
     super(instance);
@@ -243,8 +251,14 @@ export class UWebSocketsAdapter<
       requestHandler = handlerOrPath;
     }
 
-    uwsHandler(path, (response: HttpResponse, request: HttpRequest): void =>
-      requestHandler(request as TRequest, response as TResponse),
-    );
+    uwsHandler(path, (response: HttpResponse, request: HttpRequest): void => {
+      const expressLikeRequest: ExpressLikeRequest = this.#expressLikeRequestFromUWebSocketsHttpRequestBuilder.build(
+        request,
+        response,
+        path,
+      );
+
+      requestHandler(expressLikeRequest as unknown as TRequest, response as TResponse);
+    });
   }
 }
